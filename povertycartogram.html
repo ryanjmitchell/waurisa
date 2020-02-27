@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+h1 {
+	font-size: 20px;
+	line-height: 30px;
+}
+
+h2 {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: #2dc4b2;
+}
+
+#console {
+	position: absolute;
+	top: 400px;
+	width: 223px;
+	margin: 5px;
+	padding: 0px 5px;
+	background-color: white;
+}
+
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 15px;
+	width: 75px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #343332;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #6E6E6E;
+}
+.session {
+	margin-bottom: 10px;
+}
+
+.session h5 {
+	margin: 0 0 5px;
+}
+
+.row {
+	height: 12px;
+	width: 100%;
+}
+
+.colors {
+	background: linear-gradient(to right, #e4f1e1,#b4d9cc,#63a6a0,#287274,#0d585f);
+	margin-bottom: 5px;
+}
+
+.label {
+	width: 15%;
+	display: inline-block;
+	text-align: left;
+	font-size: 13px;
+}
+.labelright {
+	width: 15%;
+	display: inline-block;
+	text-align: right;
+	font-size: 13px;
+}
+</style>
+<body>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.min.js'></script>
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.css' type='text/css' />
+
+	<nav id='menu'></nav>
+	<div id='map'></div>
+	<div id='after' class='map'></div>
+	<div id='console'>
+		<div class='session'>
+			<h5 align=center>Poverty Rate</h5>
+			<div class='row colors'>
+			</div>
+			<div class='row labels'>
+				<div class='label'>Low</div>
+				<div class='label'></div>
+				<div class='label'></div>
+				<div class='label'></div>
+				<div class='label'></div>
+				<div class='labelright'>High</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+	//The map variable
+	var bounds = [
+		[-122.961357,45.301999], // Southwest coordinates
+		[-122.136616,45.732858]  // Northeast coordinates
+	];
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/ryanjmitch/cjxs5trau748x1cqms8ug0e4s',
+		center: [-122.632000,45.536897],
+		zoom: 10,
+		minZoom: 10,
+		maxBounds: bounds, // Sets bounds as max
+		interactive: false
+	});
+
+map.on('load', function(){
+	//non carto Risk JSON
+	map.addSource('noncarto', {
+		'type': 'geojson',
+		'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/vulnerability.json'
+	});
+	map.addLayer({
+		'id':'Poverty',
+		'type':'fill',
+		'source':'noncarto',
+		'layout': {
+			'visibility': 'visible'
+		},
+		'paint': {'fill-color': ['step',['get','risk_80_MF'],'#fff',0,'#e4f1e1',1,'#b4d9cc',2,'#63a6a0',3,'#287274',4,'#0d585f'],
+		'fill-opacity': 0.9,
+		'fill-outline-color': 'rgba(240, 240, 240, 0)'
+	}
+});
+//Community of Color Cartogram
+map.addSource('povertycarto', {
+	'type': 'geojson',
+	'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/colorCartogram.json'
+});
+map.addLayer({
+	'id':'Distort',
+	'type':'fill',
+	'source':'povertycarto',
+	'layout': {
+		'visibility': 'none'
+	},
+	'paint': {'fill-color': ['step',['get','risk_80_MF'],'white',0,'#e4f1e1',1,'#b4d9cc',2,'#63a6a0',3,'#287274',4,'#0d585f',],
+	'fill-opacity': 0.9,
+	'fill-outline-color': 'rgba(200, 100, 240, 0)'
+}
+});
+
+var toggleableLayerIds = [ 'Distort', 'Poverty' ];
+
+var link = document.createElement('a');
+link.href = '#';
+link.className = 'active';
+link.textContent = 'DISTORT';
+link.onclick = function (e) {
+	for(var index in toggleableLayerIds) {
+		var clickedLayer = toggleableLayerIds[index];
+		e.preventDefault();
+		e.stopPropagation();
+
+		var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+		if (visibility === 'visible') {
+			map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+			this.className = '';
+		} else {
+			this.className = 'active';
+			map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+		}
+	}
+};
+var layers = document.getElementById('menu');
+layers.appendChild(link);
+});
+</script>
+</div>
+</body>
+</html>

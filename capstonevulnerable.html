@@ -1,0 +1,252 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+h1 {
+	font-size: 20px;
+	line-height: 30px;
+}
+
+h2 {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: #2dc4b2;
+}
+
+#console {
+	position: absolute;
+	width: 210px;
+	margin: 5px;
+	padding: 0px 5px;
+	background-color: white;
+}
+
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 10px;
+	width: 40px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #343332;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #6E6E6E;
+}
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 10px;
+	width: 40px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #343332;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #6E6E6E;
+}
+.session {
+	margin-bottom: 20px;
+}
+
+.session h5 {
+	margin: 0 0 5px;
+}
+
+.row {
+	height: 12px;
+	width: 100%;
+}
+
+.colors {
+	background: linear-gradient(to right, #fcbba1,#fc9272,#fb6a4a,#ef3b2c,#cb181d,#a50f15,#67000d);
+	margin-bottom: 5px;
+}
+
+.label {
+	width: 15%;
+	display: inline-block;
+	text-align: center;
+	font-size: 13px;
+}
+</style>
+<body>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.min.js'></script>
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.css' type='text/css' />
+
+	<nav id='menu'></nav>
+	<div id='map'></div>
+	<div id='after' class='map'></div>
+	<div id='console'>
+		<div class='session'>
+			<h5 align=center>Vulnerability to Gentrification</h5>
+			<div class='row colors'>
+			</div>
+			<div class='row labels'>
+				<div class='label'>High Vulnerability</div>
+				<div class='label'></div>
+				<div class='label'></div>
+				<div class='label'></div>
+				<div class='label'>Greatest Vulnerability</div>
+				<div class='label'></div>
+			</div>
+		</div>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+	//The map variable
+	var bounds = [
+	[-122.961357,45.301999], // Southwest coordinates
+	[-122.136616,45.732858]  // Northeast coordinates
+	];
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/ryanjmitch/cjxs5trau748x1cqms8ug0e4s',
+		center: [-122.558597,45.547010],
+		zoom: 10,
+		minZoom: 10,
+		maxBounds: bounds // Sets bounds as max
+	});
+	<!-- Geocoder -->
+	map.addControl(new MapboxGeocoder({
+		accessToken: mapboxgl.accessToken,
+		mapboxgl: mapboxgl
+	}));
+	map.on('load', function(){
+//Portlan/Gresham
+		map.addSource('portgres', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/portland_gresham.json'
+		});
+		map.addLayer({
+			'id':'portland and gresham',
+			'type':'line',
+			'source':'portgres',
+			'layout': {
+				'visibility': 'visible',
+				'line-join': 'round',
+				'line-cap': 'round'
+			},
+			'paint': {
+				'line-color': 'white',
+				'line-width': 1,
+				'line-opacity': 0.75
+			}
+		});
+		//vulnerability risk
+	map.addSource('vulnerability', {
+		'type': 'geojson',
+		'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/vulnerable_tracts.json'
+	});
+	map.addLayer({
+		'id':'Vulnerable Tracts',
+		'type':'fill',
+		'source':'vulnerability',
+		'layout': {
+			'visibility': 'visible'
+		},
+		'paint': {"fill-color": ["step",["get","risk_total"],"white",10,"#fcbba1",11,"#fc9272",12,"#fb6a4a",13,"#ef3b2c",14,"#cb181d",15,"#a50f15",16,"#67000d"],
+		'fill-opacity': 0.75,
+		'fill-outline-color': 'rgba(200, 100, 240, 0)'
+	}
+	});
+
+	var popup = new mapboxgl.Popup({
+	closeButton: false,
+	closeOnClick: false
+	});
+	map.on('mousemove', 'Vulnerable Tracts', function (e) {
+		map.getCanvas().style.cursor = 'pointer';
+		var coordinates = e.features[0].geometry.coordinates.slice();
+		var description = "<p>Tract #"+e.features[0].properties.TRACT_NO+"<br>Household Demographics:<br>Rent: "+e.features[0].properties.Perc_rente+"%<br>Without Bachelor's: "+e.features[0].properties.Perc_WO_ba+"%<br>Non-white: "+e.features[0].properties.Perc_com_c+"%<br>Low-income: "+e.features[0].properties.Perc_HHs_8+"%</p>";
+		while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+}
+		popup.setLngLat(e.lngLat)
+		.setHTML(description)
+		.addTo(map);
+	});
+	map.on('mouseleave', 'Vulnerable Tracts', function () {
+		map.getCanvas().style.cursor = '';
+		popup.remove();
+	});
+		});
+	</script>
+</div>
+</body>
+</html>

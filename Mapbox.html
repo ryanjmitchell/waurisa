@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<!--
+Story by HTML5 UP
+html5up.net | @ajlkn
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+	<title>Mapbox</title>
+	<meta charset="utf-8" />
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<style >
+	p.lightblue {color:#4bdaf7;}
+	p.darkblue {color:#04126c;}
+	#remover {
+		margin: 0 auto;
+		background-color: #FFFF00;
+		color: 'black';
+		font-size: 12px;
+		padding: 0.1em;
+		border: 2px solid #FF4500;
+		border-radius: 0.3em;
+		cursor: pointer;
+		position: absolute;
+		left: 0.7em;
+		top: 10em;
+	}
+	#remover:hover {
+		background-color: #FF4500;
+	}
+	#loa {
+		margin: 0 auto;
+		background-color: #C8C8C8;
+		color: 'black';
+		font-size: 12px;
+		padding: 0.1em;
+		border: 2px solid #024731;
+		border-radius: 0.3em;
+		cursor: pointer;
+		position: absolute;
+		left: 0.7em;
+		top: 7em;
+	}
+	#loa:hover {
+		background-color: #024731;
+	}
+	#southHill {
+		margin: 0 auto;
+		background-color: #4bdaf7;
+		color: 'black';
+		font-size: 12px;
+		padding: 0.1em;
+		border: 2px solid #04126c;
+		border-radius: 0.3em;
+		cursor: pointer;
+		position: absolute;
+		left: 0.7em;
+		top: 64em;
+	}
+	#southHill:hover {
+		background-color: #b1b9b2;
+	}
+</style>
+</head>
+<body>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.min.js'></script>
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.css' type='text/css' />
+
+	<!-- Mapbox 1 -->
+	<section>
+		<div>
+			<h2 style="text-align: center;">Earthquakes - Mauna Loa, Hawaii</h2>
+			<div id='map' style='width: 100%; height: 500px;'></div>
+			<div id='remover'>Toggle Earthquakes OFF</div>
+			<div id='loa'>Mauna Loa</div>
+			<script>
+			mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+			//The map variable
+			var map = new mapboxgl.Map({
+				container: 'map',
+				style: 'mapbox://styles/ryanjmitch/cjoevcwjs5f1j2rpfn0q6jnsa',
+				center: [-155.5922,19.4721],
+				zoom: 11
+			});
+			map.scrollZoom.disable();
+			map.addControl(new MapboxGeocoder({
+				accessToken: mapboxgl.accessToken
+			}));
+			map.addControl(new mapboxgl.NavigationControl({
+				showCompass: false
+			}));
+			map.on('load', function(){
+				map.addSource('earthquakes', {
+					"type": "geojson",
+					"data": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+				});
+				map.addLayer({
+					"id":"equakes",
+					"type":"circle",
+					"source":"earthquakes",
+					"paint": {
+						"circle-color": "#FFFF00",
+						"circle-opacity": 0.5,
+						"circle-radius": 10,
+						"circle-stroke-color": '#FF4500',
+						"circle-stroke-width": 1,
+						"circle-stroke-opacity": 0.75
+					}
+				});
+				//add a handler for clicking/popups
+				//Thanks to: https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
+				map.on('click', 'equakes', function (e) {
+					map.getCanvas().style.cursor = 'pointer';
+					var coordinates = e.features[0].geometry.coordinates.slice();
+					var description = "<p>Mag: "+e.features[0].properties.mag+"<br>Location: "+e.features[0].properties.place+"<br>URL: <a target= '_blank' href='"+e.features[0].properties.url+"'>USGS Details</a></p>"
+					// Ensure that if the map is zoomed out such that multiple
+					// copies of the feature are visible, the popup appears
+					// over the copy being pointed to.
+					while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+						coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+					}
+					//make the popup
+					new mapboxgl.Popup()
+					.setLngLat(coordinates)
+					.setHTML(description)
+					.addTo(map);
+				});
+				// Change the cursor to a pointer when the mouse is over the places layer.
+				map.on('mouseenter', 'equakes', function () {
+					map.getCanvas().style.cursor = 'pointer';
+				});
+				// Change it back to a pointer when it leaves.
+				map.on('mouseleave', 'equakes', function () {
+					map.getCanvas().style.cursor = '';
+				});
+			});
+			map.on('load', function(){
+				var switchy = document.getElementById('remover');
+				switchy.addEventListener("click", function(){
+					switchy = document.getElementById('remover');
+					if (switchy.className === 'on') {
+						switchy.setAttribute('class', 'off');
+						map.setLayoutProperty('equakes', 'visibility', 'none');
+						switchy.innerHTML = 'Toggle Earthquakes ON';
+					} else {
+						switchy.setAttribute('class', 'on');
+						map.setLayoutProperty('equakes', 'visibility', 'visible');
+						switchy.innerHTML = 'Toggle Earthquakes OFF';
+					}
+				});
+				//home button
+				var loa = document.getElementById('loa');
+				loa.addEventListener("click", function(){
+					map.setCenter([-155.5922,19.4721]);
+					map.setZoom(11);
+					map.setstyle('mapbox://styles/ryanjmitch/cjoevcwjs5f1j2rpfn0q6jnsa');
+				});
+			});
+		</script>
+		<p>Weekly earthquake data for Mauna Loa, Hawaii Volcanoes National Park (USGS)</p>
+	</div>
+
+	<!-- Mapbox 2-->
+	<div>
+		<h2 style="text-align: center;">The Missing Middle - South Hill, WA</h2>
+		<div id="map1" style='width: 100%; height: 500px';></div>
+		<div id='southHill'>South Hill</div>
+		<script>
+		mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+		var map1 = new mapboxgl.Map({
+			container: 'map1',
+			style: 'mapbox://styles/ryanjmitch/cjohr4dge0boq2smjc3sklh6c',
+			center: [-122.2930,47.12],
+			zoom: 11.4
+		});
+		map1.scrollZoom.disable();
+		map1.addControl(new MapboxGeocoder({
+			accessToken: mapboxgl.accessToken
+		}));
+		map1.addControl(new mapboxgl.NavigationControl({
+			showCompass: false
+		}));
+		map1.on('load', function(){
+			var southHill = document.getElementById('southHill');
+			southHill.addEventListener("click", function(){
+				map1.setCenter([-122.2930,47.12]);
+				map1.setZoom(11.4);
+			});
+		});
+		</script>
+		<p>(<b><font color='#4bdaf7'>Multi-family 1-4 Dwellings</font></b>/<b><font color='#04126c'>Single-family Housing</font></b>)
+			<br>
+			From 1990 to 2015 there has been a sharp decline in middle housing within Pierce County. The middle contains dwellings that are detached units, duplexes, triplexes, and fourplexes. In the 1990’s multi-family 1-4 permits made up anywhere from 20-36% of housing permits. Starting in 2000, that dropped abruptly to 9% and never rose above 15% again. As of 2015 7% of permits issued where for multi-family 1-4 units.
+			<br>
+			Increasing multi-family 1-4 housing would help Pierce County fight urban sprawl by increasing density without mid-to-high rise apartments. It will help the county to grow ‘smartly’. One of the ideologies of smart growth is mixed-density housing and compact design. Multi-family 1-4 dwellings provide just that. Pierce County needs more middle housing options in order to combat sprawl and to have a diverse offering of housing to all residents.
+		</p>
+	</section>
+
+	<!-- Footer -->
+	<div class="inner align-center">
+		<ul class="icons">
+			<a href="index.html"><span class="icon style2 fas fa-home"></span>
+				<p>Home</p></a>
+			</ul>
+			<p>&copy; Ryan Mitchell
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+	</html>

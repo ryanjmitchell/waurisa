@@ -1,0 +1,398 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+h1 {
+	font-size: 20px;
+	line-height: 30px;
+}
+
+h2 {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: #2dc4b2;
+}
+
+#console {
+	position: absolute;
+	width: 190px;
+	margin: 5px;
+	padding: 0px 2.5px;
+	background-color: white;
+}
+
+.legend {
+	background-color: #fff;
+	top: 50px;
+	font: 13px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	padding: 5px;
+	position: absolute;
+	left: 0px;
+	z-index: 1;
+	text-align: left;
+}
+
+.legend h4 {
+	margin: 0 0 0px;
+}
+
+.legend div span {
+	border-radius: 50%;
+	display: inline-block;
+	height: 10px;
+	margin-right: 5px;
+	width: 10px;
+}
+
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 50px;
+	right: 10px;
+	width: 70px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #6E6E6E;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #8C8C8C;
+}
+</style>
+<body>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.min.js'></script>
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.css' type='text/css' />
+
+	<nav id='menu'></nav>
+	<div id='map'></div>
+	<div id='console'>
+		<h1 style='color:#F8B2B0;'>500-year Floodplain</h1>
+		<div id='legend' class='legend'>
+			<div><span style='background-color: red'></span>Fire Station</div>
+			<div><span style='background-color: navy'></span>Police Station</div>
+			<div><span style='background-color: teal'></span>Medical Center</div>
+			<div><span style='background-color: gray'></span>School</div>
+		</div>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+	//The map variable
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/ryanjmitch/cjw1dz01908li1cmzd6zldzre',
+		center: [-95.45,29.83],
+		zoom: 9,
+		minZoom: 3,
+	});
+	<!-- Geocoder -->
+	map.addControl(new MapboxGeocoder({
+		accessToken: mapboxgl.accessToken,
+		mapboxgl: mapboxgl
+	}));
+	//county line
+	map.on('load', function(){
+		map.addSource('harris_county', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/harris_county.json'
+		});
+		map.addLayer({
+			'id':'harris',
+			'type':'line',
+			'source':'harris_county',
+			'layout': {
+				'visibility': 'visible',
+				'line-join': 'round',
+				'line-cap': 'round'
+			},
+			'paint': {
+				'line-color': '#888',
+				'line-width': 1,
+				'line-opacity': 0.75
+			}
+		});
+		//highways
+		map.addSource('highways', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/highways.json'
+		});
+		map.addLayer({
+			'id':'roads',
+			'type':'line',
+			'source':'highways',
+			'minzoom': 6,
+			'layout': {
+				'visibility': 'visible',
+				'line-join': 'round',
+				'line-cap': 'round'
+			},
+			'paint': {
+				'line-color': 'silver',
+				'line-width': .5,
+				'line-opacity': 0.5
+			}
+		});
+		//flooplain
+		map.addSource('harris_flood', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/500_flood.json'
+		});
+		map.addLayer({
+			'id':'Floodplain',
+			'type':'fill',
+			'source':'harris_flood',
+			'minzoom': 6.5,
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'fill-color': 'red',
+			'fill-opacity': 0.15}
+		});
+		//FD
+		map.addSource('harris_fire', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/fire.json'
+		});
+		map.addLayer({
+			'id':'Fire',
+			'type':'circle',
+			'source':'harris_fire',
+			'minzoom': 7,
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'circle-color': 'red',
+			'circle-radius': 3,
+			'circle-stroke-color': 'white',
+			'circle-stroke-width': .5,
+			'circle-opacity': 0.75}
+		});
+		//add a handler for clicking/popups
+		//Thanks to: https://www.mapbox.com/mapbox-gl-js/example/popup-on-click/
+		map.on('click', 'Fire', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Fire Station #'+e.features[0].properties.LABEL+'</p>'
+			// Ensure that if the map is zoomed out such that multiple
+			// copies of the feature are visible, the popup appears
+			// over the copy being pointed to.
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			//make the popup
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		// Change the cursor nk, to a pointer when the mouse is over the places layer.
+		map.on('mouseenter', 'Fire', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		// Change it back to a pointer when it leaves.
+		map.on('mouseleave', 'Fire', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		//PD
+		map.addSource('harris_police', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/police.json'
+		});
+		map.addLayer({
+			'id':'Police',
+			'type':'circle',
+			'source':'harris_police',
+			'minzoom': 7,
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'circle-color': 'navy',
+			'circle-radius': 3,
+			'circle-stroke-color': 'white',
+			'circle-stroke-width': .5,
+			'circle-opacity': 0.75}
+		});
+		map.on('click', 'Police', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>'+e.features[0].properties.STATION+' Police Station</p>'
+
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+
+		map.on('mouseenter', 'Police', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+
+		map.on('mouseleave', 'Police', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		//Medical
+		map.addSource('harris_hospitals', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/hospitals.json'
+		});
+		map.addLayer({
+			'id':'Medical Centers',
+			'type':'circle',
+			'source':'harris_hospitals',
+			'minzoom': 7,
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'circle-color': 'teal',
+			'circle-radius': 3,
+			'circle-stroke-color': 'white',
+			'circle-stroke-width': .5,
+			'circle-opacity': 0.75}
+		});
+		map.on('click', 'Medical Centers', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>'+e.features[0].properties.NAME+'</p>'
+
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+
+		map.on('mouseenter', 'Medical Centers', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+
+		map.on('mouseleave', 'Medical Centers', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		//Schools
+		map.addSource('harris_schools', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/schools.json'
+		});
+		map.addLayer({
+			'id':'Schools',
+			'type':'circle',
+			'source':'harris_schools',
+			'minzoom': 8,
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'circle-color': 'gray',
+			'circle-radius': 3,
+			'circle-stroke-color': 'white',
+			'circle-stroke-width': .5,
+			'circle-opacity': 0.75}
+		});
+		map.on('click', 'Schools', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>'+e.features[0].properties.CampName+'</p>'
+
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+
+		map.on('mouseenter', 'Schools', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+
+		map.on('mouseleave', 'Schools', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		//add new spatial data here
+	});
+	var toggleableLayerIds = [ 'Floodplain', 'Medical Centers', 'Police', 'Fire', 'Schools',];
+
+	for (var i = 0; i < toggleableLayerIds.length; i++) {
+		var id = toggleableLayerIds[i];
+
+		var link = document.createElement('a');
+		link.href = '#';
+		link.className = 'active';
+		link.textContent = id;
+
+		link.onclick = function (e) {
+			var clickedLayer = this.textContent;
+			e.preventDefault();
+			e.stopPropagation();
+
+			var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+			if (visibility === 'visible') {
+				map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+				this.className = '';
+			} else {
+				this.className = 'active';
+				map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+			}
+		};
+
+		var layers = document.getElementById('menu');
+		layers.appendChild(link);
+	}
+	</script>
+</div>
+</body>
+</html>

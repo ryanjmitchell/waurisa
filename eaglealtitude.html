@@ -1,0 +1,863 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+h1 {
+	font-size: 20px;
+	line-height: 30px;
+}
+
+h2 {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: #2dc4b2;
+}
+
+#console {
+	position: absolute;
+	width: 235px;
+	margin: 5px;
+	padding: 0px 5px;
+	background-color: white;
+}
+
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 10px;
+	width: 40px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #343332;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #6E6E6E;
+}
+#menu {
+	background: #fff;
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 10px;
+	width: 40px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
+#menu a {
+	font-size: 13px;
+	color: #404040;
+	display: block;
+	margin: 0;
+	padding: 0;
+	padding: 5px;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+	text-align: center;
+}
+
+#menu a:last-child {
+	border: none;
+}
+
+#menu a:hover {
+	background-color: #f8f8f8;
+	color: #404040;
+}
+
+#menu a.active {
+	background-color: #343332;
+	color: #ffffff;
+}
+
+#menu a.active:hover {
+	background: #6E6E6E;
+}
+.session {
+	margin-bottom: 20px;
+}
+
+.session h5 {
+	margin: 0 0 5px;
+}
+
+.row {
+	height: 12px;
+	width: 100%;
+}
+
+.colors {
+	background: linear-gradient(to right, #f7f7f7, #d1e5f0, #92c5de, #4393c3,#2166ac, #053061);
+	margin-bottom: 5px;
+}
+
+.label {
+	width: 15%;
+	display: inline-block;
+	text-align: center;
+	font-size: 13px;
+}
+</style>
+<body>
+	<nav id='menu'></nav>
+	<div id='map'></div>
+	<div id='console'>
+		<h1>Bald Eagle Altitude Data</h1>
+		<p>March 2014 to March 2019</p>
+		<div class='session'>
+			<h5>Altitude</h5>
+			<div class='row colors'>
+			</div>
+			<div class='row labels'>
+				<div class='label'>Low</div>
+				<div class='label'> </div>
+				<div class='label'> </div>
+				<div class='label'> </div>
+				<div class='label'> </div>
+				<div class='label'>High</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+	//The map variable
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/ryanjmitch/cjvfpdbi93id41fnr9c5s07fq',
+		center: [-98.1,56.5],
+		zoom: 2.6,
+		minZoom: 2.6,
+		maxZoom: 7.5
+	});
+	map.on('load', function(){
+		map.addSource('eagle258', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/258.json'
+		});
+		<!--eagle258-->
+		map.addLayer({
+			'id':'258',
+			'type':'circle',
+			'source':'eagle258',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '258', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '258', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '258', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle431-->
+		map.addSource('eagle431', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/431.json'
+		});
+		map.addLayer({
+			'id':'431',
+			'type':'circle',
+			'source':'eagle431',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '431', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '431', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '431', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle974-->
+		map.addSource('eagle974', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/974.json'
+		});
+		map.addLayer({
+			'id':'974',
+			'type':'circle',
+			'source':'eagle974',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '974', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '974', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '974', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--ealge1370-->
+		map.addSource('eagle1370', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/1370.json'
+		});
+		map.addLayer({
+			'id':'1370',
+			'type':'circle',
+			'source':'eagle1370',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '1370', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '1370', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '1370', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle1388-->
+		map.addSource('eagle1388', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/1388.json'
+		});
+		map.addLayer({
+			'id':'1388',
+			'type':'circle',
+			'source':'eagle1388',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '1388', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '1388', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '1388', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle2634-->
+		map.addSource('eagle2634', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/2634.json'
+		});
+		map.addLayer({
+			'id':'2634',
+			'type':'circle',
+			'source':'eagle2634',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '2634', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '2634', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '2634', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle3988-->
+		map.addSource('eagle3988', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/3988.json'
+		});
+		map.addLayer({
+			'id':'3988',
+			'type':'circle',
+			'source':'eagle3988',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '3988', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '3988', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '3988', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--ealge4770-->
+		map.addSource('eagle4770', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/4770.json'
+		});
+		map.addLayer({
+			'id':'4770',
+			'type':'circle',
+			'source':'eagle4770',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '4770', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '4770', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '4770', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle5413-->
+		map.addSource('eagle5413', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/5413.json'
+		});
+		map.addLayer({
+			'id':'5413',
+			'type':'circle',
+			'source':'eagle5413',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '5413', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '5413', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '5413', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--ealge6692-->
+		map.addSource('eagle6692', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/6692.json'
+		});
+		map.addLayer({
+			'id':'6692',
+			'type':'circle',
+			'source':'eagle6692',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '6692', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '6692', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '6692', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle7090-->
+		map.addSource('eagle7090', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/7090.json'
+		});
+		map.addLayer({
+			'id':'7090',
+			'type':'circle',
+			'source':'eagle7090',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '7090', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '7090', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '7090', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--eagle8049-->
+		map.addSource('eagle8049', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/8049.json'
+		});
+		map.addLayer({
+			'id':'8049',
+			'type':'circle',
+			'source':'eagle8049',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '8049', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '8049', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '8049', function () {
+			map.getCanvas().style.cursor = '';
+		});
+		<!--ealge9896-->
+		map.addSource('eagle9896', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/9896.json'
+		});
+		map.addLayer({
+			'id':'9896',
+			'type':'circle',
+			'source':'eagle9896',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {
+				'circle-radius': 1,
+				'circle-opacity': 0.5,
+				'circle-color': {
+					property: 'Altitude',
+					stops: [
+						[-400, '#67001f'],
+						[-300, '#b2182b'],
+						[-200, '#d6604d'],
+						[-100, '#f4a582'],
+						[0, '#f7f7f7'],
+						[100, '#d1e5f0'],
+						[200, '#92c5de'],
+						[300, '#4393c3'],
+						[400, '#2166ac'],
+						[500, '#053061']
+					]
+				}
+			},
+		});
+		map.on('click', '9896', function (e) {
+			map.getCanvas().style.cursor = 'pointer';
+			var coordinates = e.features[0].geometry.coordinates.slice();
+			var description = '<p>Eagle: '+e.features[0].properties.Path_ID+'<br>Coordinates: '+e.features[0].properties.Latitude+','+e.features[0].properties.Longitude+'<br>Altitude: '+e.features[0].properties.Altitude+'ft<br>Date: '+e.features[0].properties.Date+'</p>'
+			while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+			}
+			new mapboxgl.Popup()
+			.setLngLat(coordinates)
+			.setHTML(description)
+			.addTo(map);
+		});
+		map.on('mouseenter', '9896', function () {
+			map.getCanvas().style.cursor = 'pointer';
+		});
+		map.on('mouseleave', '9896', function () {
+			map.getCanvas().style.cursor = '';
+		});
+	});
+	var toggleableLayerIds = [ '258', '431', '974', '1370', '1388', '2634', '3988', '4770', '5413', '6692', '7090', '8049', '9896'];
+
+	for (var i = 0; i < toggleableLayerIds.length; i++) {
+		var id = toggleableLayerIds[i];
+
+		var link = document.createElement('a');
+		link.href = '#';
+		link.className = 'active';
+		link.textContent = id;
+
+		link.onclick = function (e) {
+			var clickedLayer = this.textContent;
+			e.preventDefault();
+			e.stopPropagation();
+
+			var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+
+			if (visibility === 'visible') {
+				map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+				this.className = '';
+			} else {
+				this.className = 'active';
+				map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+			}
+		};
+
+		var layers = document.getElementById('menu');
+		layers.appendChild(link);
+	}
+</script>
+</div>
+</body>
+</html>

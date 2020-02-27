@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.css' rel='stylesheet' />
+</head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+h1 {
+	font-size: 20px;
+	line-height: 30px;
+}
+
+h2 {
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 10px;
+}
+
+a {
+	text-decoration: none;
+	color: #2dc4b2;
+}
+
+#console {
+	position: absolute;
+	width: 190px;
+	margin: 5px;
+	padding: 0px 2.5px;
+	background-color: white;
+}
+
+.legend {
+	background-color: #fff;
+	top: 50px;
+	font: 13px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	padding: 5px;
+	position: absolute;
+	left: 0px;
+	z-index: 1;
+	text-align: left;
+}
+
+.legend h4 {
+	margin: 0 0 0px;
+}
+
+.legend div span {
+	border-radius: 50%;
+	display: inline-block;
+	height: 10px;
+	margin-right: 5px;
+	width: 10px;
+}
+
+.colors {
+	background: linear-gradient(to right, #e0c2a2,#d39c83,#c1766f,#a65461,#541f3f);
+	margin-bottom: 5px;
+}
+
+</style>
+<body>
+	<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.min.js'></script>
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.3.0/mapbox-gl-geocoder.css' type='text/css' />
+
+	<nav id='menu'></nav>
+	<div id='map'></div>
+	<div id='console'>
+		<h5 align=center><b>Communities of Color, 2000</h5>
+			<div id='legend' class='legend'>
+				<div><span style='background-color: #e0c2a2'></span>5%-19%</div>
+				<div><span style='background-color: #d39c83'></span>20%-30%</div>
+				<div><span style='background-color: #c1766f'></span>31%-44%</div>
+				<div><span style='background-color: #a65461'></span>45%-65%</div>
+				<div><span style='background-color: #541f3f'></span>66%-90%</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmptaXRjaCIsImEiOiJjamhhdDBjaXgwcmZlMzBxZ2t1cnZ4bnFnIn0.4tXv0Yvk06rDbYp7ZLSdAw';
+	//The map variable
+	var bounds = [
+		[-122.961357,45.301999], // Southwest coordinates
+		[-122.136616,45.732858]  // Northeast coordinates
+	];
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/ryanjmitch/cjxs5trau748x1cqms8ug0e4s',
+		center: [-122.558597,45.547010],
+		zoom: 10,
+		minZoom: 10,
+		maxBounds: bounds // Sets bounds as max
+	});
+	<!-- Geocoder -->
+	map.addControl(new MapboxGeocoder({
+		accessToken: mapboxgl.accessToken,
+		mapboxgl: mapboxgl
+	}));
+	map.on('load', function(){
+		//Portlan/Gresham
+		/* map.addSource('portgres', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/portland_gresham.json'
+		});
+		map.addLayer({
+			'id':'portland and gresham',
+			'type':'line',
+			'source':'portgres',
+			'layout': {
+				'visibility': 'visible',
+				'line-join': 'round',
+				'line-cap': 'round'
+			},
+			'paint': {
+				'line-color': 'white',
+				'line-width': 1,
+				'line-opacity': 0.75
+			}
+		}); */
+		//2000 Census
+		map.addSource('2000', {
+			'type': 'geojson',
+			'data': 'https://raw.githubusercontent.com/ryanjmitchell/ryanjmitchell.github.io/master/assets/data/TEST2000.json'
+		});
+		map.addLayer({
+			'id':'2000 Census',
+			'type':'fill',
+			'source':'2000',
+			'layout': {
+				'visibility': 'visible'
+			},
+			'paint': {'fill-color': [
+				'interpolate',
+				['linear'],
+				['get', 'Per_non'],
+				.192, '#e0c2a2',
+				.298, '#d39c83',
+				.445, '#c1766f',
+				.652, '#a65461',
+				.9, '#541f3f'
+			],
+			'fill-opacity': .9,
+			'fill-outline-color': 'rgba(200, 100, 240, 0)'
+		}
+	});
+});
+</script>
+</div>
+</body>
+</html>

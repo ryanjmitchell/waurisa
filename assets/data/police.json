@@ -1,0 +1,4 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.37072534524621,29.764874534712266]},"properties":{"OBJECTID_1":2,"OBJECTID_2":2,"OBJECTID":2,"STATION":"Central","ADDRESS":"61 Riesner St","Legend":"Central Division - Districts 1 & 2 - 61 Riesner St. - (713) 247-4400","AGENCY":"HPD","ZIP":"77002"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-95.4199241978885,29.951470683500876]},"properties":{"OBJECTID_1":9,"OBJECTID_2":9,"OBJECTID":9,"STATION":"North Belt","ADDRESS":"100 Glenborough Dr","Legend":"North Belt Division - District 22 - 100 Glenborough Dr - (832) 394-4900","AGENCY":"HPD","ZIP":"77060"}}
+]}

@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<!--
+Story by HTML5 UP
+html5up.net | @ajlkn
+Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+<head>
+	<title>Story Map</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	<style >
+	img.resize {
+		max-width:100%;
+		max-height:100%;
+	}
+</style>
+</head>
+<body class="is-preload">
+
+	<!-- US Choropleth -->
+	<section class="wrapper style1 align-center">
+		<div class="inner">
+			<h1>Thematic Mapping</h1>
+			<section>
+				<p style='text-align: left;'>
+					A thematic map is a map that focuses on a particular theme or special topic. Choosing how to represent that topic can be a difficult task. This website will go over the pro’s and con’s of some popular mapping techniques to help you decide which one if best for the data that you have. We will look at choropleth maps, popular because of their visual and intuitive appeal, and dot/dot density/heat maps.
+					<br>
+					With choropleth maps, geographical areas, usually defined by administrative boundaries, are filled with color or pattern to reflect the magnitude of the data to be mapped.
+					<br>
+					In a dot-density map, each case which occurred in an area is represented as a dot on the map.
+					<br>
+					A heat map is a graphical representation of data where the individual values contained are represented as colors.
+					<br>
+					Both interactive maps show the same data, EPA sites, albeit differently.
+				</p>
+			</section>
+			<h2>Choropleth Map</h2>
+			<iframe src="choroplethmap.html" style="width: 100%;height: 500px;background-color: grey;"></iframe>
+			<!-- Pros/Cons -->
+			<section class="wrapper style1 align-center">
+				<div class="items style1 medium">
+					<section>
+						<h3>Pro's</h3>
+						<ul style='text-align: left;'><p>
+							<li>Popular</li>
+							<li>Shows general patterns clearly</li>
+							<li>Links variables to locations</li>
+							<li>Visually effective</li>
+							<li>Levels of shading/color represent a range of values</li>
+						</p></ul>
+					</section>
+					<section>
+						<h3>Con's</h3>
+						<ul style='text-align: left;'><p>
+							<li>Gives impression of uniform values within sub-areas</li>
+							<li>Can only be used for ratio data not absolute values</li>
+							<li>Often not suitable for showing total values</li>
+							<li>Can be difficult to distinguish between different shades</li>
+						</p></ul>
+					</section>
+					<section>
+						<h3>Well Executed Choropleth</h3>
+						<div class="gallery style1 medium lightbox">
+							<a href="images/choroplethGood.jpg" class="images">
+								<img class="resize" src="images/choroplethGood.jpg" alt="Choropleth Example" />
+							</a>
+						</div>
+						<p><sub>(click image to enlarge)
+							<br>
+							Credit: David Yanofsky</sub></p>
+						</section>
+					</div>
+				</section>
+
+				<!-- Dot/Heat Map -->
+				<h2>Dot Map</h2>
+				<iframe src="dotmap.html" style="width: 100%;height: 500px;background-color: grey;"></iframe>
+				<!-- Pros/Cons -->
+				<section class="wrapper style1 align-center">
+					<div class="items style1 medium">
+						<section>
+							<h3>Heat Maps</h3>
+							<div class="gallery style1 medium lightbox">
+								<a href="images/heatMap.jpg" class="images">
+									<img class="resize" src="images/heatMap.jpg" alt="Heat Map Example" />
+								</a>
+							</div>
+							<p style="style='text-align: left;'">Another way to visualize point data
+								<sub>
+									(click image to enlarge)
+									<br>
+									Credit: Patrick Wied
+								</sub></p>
+							</section>
+							<section>
+								<h3>Pro's</h3>
+								<ul style='text-align: left;'><p>
+									<li>Shows density and distribution across a wide area</li>
+									<li>Good visual impression of variations</li>
+									<li>Can be used for statistical analysis</li>
+									<li>Exact data can be shown </li>
+									<li>Highlights clustering of data</li>
+									<li>Can show absolute values</li>
+								</p></ul>
+							</section>
+							<section>
+								<h3>Con's</h3>
+								<ul style='text-align: left;'><p>
+									<li>Dot placement may be random</li>
+									<li>Areas with no dots may give a false sense of emptiness</li>
+									<li>Cannot be used to show data in the form of ratios</li>
+									<li>Points may not have a spatial reference</li>
+									<li>Subjective decisions made about dot size, dot value, and dot location</li>
+								</p></ul>
+							</section>
+						</div>
+					</section>
+					<p style='text-align: left;'>Sites, such as <a href="http://colorbrewer2.org" target="_blank">Colorbrewer</a> and <a href="https://www.gislounge.com/ten-things-to-consider-when-making-a-map/" target="_blank">GIS Lounge</a>, can also be great resources when making maps.</p>
+				</div>
+			</section>
+			<!-- Footer -->
+			<div class="inner align-center">
+				<ul class="icons">
+					<a href="index.html"><span class="icon style2 fas fa-home"></span>
+						<p>Home</p></a>
+					</ul>
+					<p>&copy; Ryan Mitchell
+					</div>
+				</div>
+
+				<!-- Scripts -->
+				<script src="assets/js/jquery.min.js"></script>
+				<script src="assets/js/jquery.scrollex.min.js"></script>
+				<script src="assets/js/jquery.scrolly.min.js"></script>
+				<script src="assets/js/browser.min.js"></script>
+				<script src="assets/js/breakpoints.min.js"></script>
+				<script src="assets/js/util.js"></script>
+				<script src="assets/js/main.js"></script>
+
+			</body>
+			</html>
